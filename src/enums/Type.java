@@ -1,5 +1,7 @@
 package enums;
 
+import managers.LaunchSettings;
+
 public enum Type {
     INT ("integers.txt"),
     FLOAT ("floats.txt"),
@@ -11,7 +13,7 @@ public enum Type {
         this.filePath = filePath;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getFilePath(String prefix) {
+        return prefix + filePath;
     }
 }

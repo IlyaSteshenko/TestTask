@@ -1,6 +1,7 @@
 package entities.writers;
 
 import enums.Type;
+import managers.LaunchSettings;
 
 import java.io.IOException;
 
@@ -9,7 +10,9 @@ public class StringFileWriter implements FileWriter {
 
     private static StringFileWriter stringFileWriterInstance;
 
-    private final boolean exists = exists(Type.STRING.getFilePath());
+    private LaunchSettings launchSettings;
+
+    private boolean exists;
 
     private int semaphore = 0;
 
@@ -23,6 +26,12 @@ public class StringFileWriter implements FileWriter {
     }
 
     @Override
+    public void setLaunchSettings(LaunchSettings launchSettings) {
+        this.launchSettings = launchSettings;
+        exists = exists(Type.STRING.getFilePath(launchSettings.getFileSignaturePrefix()));
+    }
+
+    @Override
     public void write(String str, boolean append) {
 
         if (!isCorrectString(str)) {
@@ -30,11 +39,11 @@ public class StringFileWriter implements FileWriter {
         }
 
         try {
-            java.io.FileWriter fileWriter = new java.io.FileWriter(Type.STRING.getFilePath(), true);
+            java.io.FileWriter fileWriter = new java.io.FileWriter(Type.STRING.getFilePath(launchSettings.getFileSignaturePrefix()), true);
             if (!append && exists && semaphore == 0) {
-                fileWriter = new java.io.FileWriter(Type.STRING.getFilePath());
+                fileWriter = new java.io.FileWriter(Type.STRING.getFilePath(launchSettings.getFileSignaturePrefix()));
                 fileWriter.close();
-                fileWriter = new java.io.FileWriter(Type.STRING.getFilePath(), true);
+                fileWriter = new java.io.FileWriter(Type.STRING.getFilePath(launchSettings.getFileSignaturePrefix()), true);
                 semaphore = 1;
             }
             fileWriter.write(str + "\n");

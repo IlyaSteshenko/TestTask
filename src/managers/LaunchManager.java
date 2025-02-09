@@ -16,26 +16,37 @@ import java.util.Set;
 
 public class LaunchManager {
 
-    private final String[] args;
+    // Настройки запуска программы
+    private final LaunchSettings launchSettings;
 
     Set<Type> pathsSet = new HashSet<>();
 
-    public LaunchManager(String[] args) {
-        this.args = args;
+    public LaunchManager(LaunchSettings launchSettings) {
+        this.launchSettings = launchSettings;
     }
 
     public void launch() {
-        try (FileReader fileReader = new FileReader("src/files/file.txt")) { // Проверка на существование файла и директорию
-            File file = new File("src/files/file.txt");
 
-            // Проверка на корректное расширение
-            if (!getFileExtension(file.getName()).equals("txt")) {
-                throw new RuntimeException("File is not txt file! Check file extension");
-            }
+        File file = new File("src/files/file.txt");
+
+        // Проверка на директорию
+        if (file.isDirectory()) {
+            System.out.println("File is directory");
+            return;
+        }
+
+        // Проверка на корректное расширение
+        if (!getFileExtension(file.getName()).equals("txt")) {
+            System.out.println("File is not txt file! Check file extension");
+            return;
+        }
+
+        try (FileReader fileReader = new FileReader("src/files/file.txt")) { // Проверка на существование файла
 
             // Проверка на пустоту файла
             if (file.length() == 0) {
-                throw new RuntimeException("File is empty");
+                System.out.println("File is empty");
+                return;
             }
 
             FileWriter writer;
@@ -45,18 +56,18 @@ public class LaunchManager {
                 Type type = DataType.typeOf(line);
                 pathsSet.add(type);
                 writer = FileWriterFactory.getWriter(type);
-                writer.write(line, true);
+                writer.write(line, launchSettings.isAppend());
 
                 line = bufferedReader.readLine();
             }
 
             for (Type type : pathsSet) {
-                Statistic statistic = StatisticFactory.getStatistic(type);
-                statistic.getStatistic(StatisticType.SHORT);
+                Statistic statistic = StatisticFactory.getStatistic(type, launchSettings.getFileSignaturePrefix());
+                statistic.getStatistic(launchSettings.getStatisticType());
             }
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.out.println("File does not exists");
         }
     }
 

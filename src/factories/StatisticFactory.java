@@ -7,12 +7,12 @@ import enums.Type;
 
 public class StatisticFactory {
 
-    public static Statistic getStatistic(Type type) {
+    public static Statistic getStatistic(Type type, String prefix) {
         Statistic statistic = null;
         if (type == Type.INT || type == Type.FLOAT) {
-            statistic = new NumericalStatistic(type.getFilePath());
+            statistic = new NumericalStatistic(type.getFilePath(prefix));
         } else {
-            statistic = new StringStatistic(type.getFilePath());
+            statistic = new StringStatistic(type.getFilePath(prefix));
         }
         return statistic;
     }
