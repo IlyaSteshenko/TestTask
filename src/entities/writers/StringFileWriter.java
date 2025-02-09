@@ -24,6 +24,11 @@ public class StringFileWriter implements FileWriter {
 
     @Override
     public void write(String str, boolean append) {
+
+        if (!isCorrectString(str)) {
+            return;
+        }
+
         try {
             java.io.FileWriter fileWriter = new java.io.FileWriter(Type.STRING.getFilePath(), true);
             if (!append && exists && semaphore == 0) {
@@ -37,5 +42,9 @@ public class StringFileWriter implements FileWriter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isCorrectString(String string) {
+        return string.matches(".+[a-zа-яA-ZА-Я0-9]+.+");
     }
 }

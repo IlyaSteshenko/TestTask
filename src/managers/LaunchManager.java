@@ -9,6 +9,7 @@ import factories.FileWriterFactory;
 import factories.StatisticFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +25,19 @@ public class LaunchManager {
     }
 
     public void launch() {
-        try (FileReader fileReader = new FileReader("src/files/file.txt")) {
+        try (FileReader fileReader = new FileReader("src/files/file.txt")) { // Проверка на существование файла и директорию
+            File file = new File("src/files/file.txt");
+
+            // Проверка на корректное расширение
+            if (!getFileExtension(file.getName()).equals("txt")) {
+                throw new RuntimeException("File is not txt file! Check file extension");
+            }
+
+            // Проверка на пустоту файла
+            if (file.length() == 0) {
+                throw new RuntimeException("File is empty");
+            }
+
             FileWriter writer;
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line = bufferedReader.readLine();
@@ -45,6 +58,10 @@ public class LaunchManager {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String getFileExtension(String fileName) {
+        return fileName.split("\\.")[1];
     }
 
 }
