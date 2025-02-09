@@ -1,6 +1,6 @@
 package managers;
 
-public class FileFilterManager {
+public class LaunchSettingsManager {
 
     // Путь к файлам результатов по умолчанию
     private String internalFilePath;
