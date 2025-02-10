@@ -28,19 +28,25 @@ public class FloatFileWriter implements FileWriter {
     @Override
     public void setLaunchSettings(LaunchSettings launchSettings) {
         this.launchSettings = launchSettings;
-        exists = exists(Type.FLOAT.getFilePath(launchSettings.getFileSignaturePrefix()));
+        if (semaphore == 0) {
+            String totalPath =
+                    launchSettings.getExternalFilePath() + Type.FLOAT.getFilePath(launchSettings.getFileSignaturePrefix());
+            exists = exists(totalPath);
+        }
     }
 
     @Override
     public void write(String str, boolean append) {
         try {
-            java.io.FileWriter fileWriter = new java.io.FileWriter(Type.FLOAT.getFilePath(launchSettings.getFileSignaturePrefix()), true);
+            String totalPath = launchSettings.getExternalFilePath() + Type.FLOAT.getFilePath(launchSettings.getFileSignaturePrefix());
+
+            java.io.FileWriter fileWriter = new java.io.FileWriter(totalPath, true);
             if (!append && exists && semaphore == 0) {
-                fileWriter = new java.io.FileWriter(Type.FLOAT.getFilePath(launchSettings.getFileSignaturePrefix()));
+                fileWriter = new java.io.FileWriter(totalPath);
                 fileWriter.close();
-                fileWriter = new java.io.FileWriter(Type.FLOAT.getFilePath(launchSettings.getFileSignaturePrefix()), true);
-                semaphore = 1;
+                fileWriter = new java.io.FileWriter(totalPath, true);
             }
+            semaphore = 1;
             fileWriter.write(str + "\n");
             fileWriter.close();
         } catch (IOException e) {

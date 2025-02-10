@@ -2,7 +2,6 @@ package managers;
 
 import entities.statistics.Statistic;
 import enums.DataType;
-import enums.StatisticType;
 import enums.Type;
 import entities.writers.FileWriter;
 import factories.FileWriterFactory;
@@ -17,7 +16,7 @@ import java.util.Set;
 public class LaunchManager {
 
     // Настройки запуска программы
-    private final LaunchSettings launchSettings;
+    private LaunchSettings launchSettings;
 
     Set<Type> pathsSet = new HashSet<>();
 
@@ -27,7 +26,7 @@ public class LaunchManager {
 
     public void launch() {
 
-        File file = new File("src/files/file.txt");
+        File file = new File(launchSettings.getFiles().get(0));
 
         // Проверка на директорию
         if (file.isDirectory()) {
@@ -41,7 +40,7 @@ public class LaunchManager {
             return;
         }
 
-        try (FileReader fileReader = new FileReader("src/files/file.txt")) { // Проверка на существование файла
+        try (FileReader fileReader = new FileReader(launchSettings.getFiles().get(0))) { // Проверка на существование файла
 
             // Проверка на пустоту файла
             if (file.length() == 0) {
@@ -56,13 +55,14 @@ public class LaunchManager {
                 Type type = DataType.typeOf(line);
                 pathsSet.add(type);
                 writer = FileWriterFactory.getWriter(type);
+                writer.setLaunchSettings(launchSettings);
                 writer.write(line, launchSettings.isAppend());
 
                 line = bufferedReader.readLine();
             }
 
             for (Type type : pathsSet) {
-                Statistic statistic = StatisticFactory.getStatistic(type, launchSettings.getFileSignaturePrefix());
+                Statistic statistic = StatisticFactory.getStatistic(type, launchSettings);
                 statistic.getStatistic(launchSettings.getStatisticType());
             }
 
