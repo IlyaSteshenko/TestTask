@@ -5,6 +5,7 @@ import enums.StatisticType;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+/// Класс статистики для чисел (целых и с плавающей точкой)
 public class NumericalStatistic implements Statistic {
 
     private int count = 0;
@@ -41,6 +42,7 @@ public class NumericalStatistic implements Statistic {
     @Override
     public void getStatistic(StatisticType statisticType) {
 
+        // Обработка статистики файлов результатов
         try (FileReader reader = new FileReader(statisticFileName)) {
             BufferedReader bufferedReader = new BufferedReader(reader);
             String line  = bufferedReader.readLine();
@@ -66,13 +68,16 @@ public class NumericalStatistic implements Statistic {
         }
 
         System.out.println(statisticFileName);
-        System.out.println("Count: " + count);
-
-        if (statisticType == StatisticType.FULL) {
-            System.out.println("Min Value: " + minValue);
-            System.out.println("Max Value: " + maxValue);
-            System.out.println("Sum: " + sumValue);
-            System.out.println("Middle: " + midValue + "\n");
+        switch (statisticType) {
+            case SHORT -> {
+                System.out.println("Count: " + count);
+            }
+            case FULL -> {
+                System.out.println("Min Value: " + minValue);
+                System.out.println("Max Value: " + maxValue);
+                System.out.println("Sum: " + sumValue);
+                System.out.println("Middle: " + midValue + "\n");
+            }
         }
     }
 

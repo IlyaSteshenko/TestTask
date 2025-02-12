@@ -6,15 +6,22 @@ import managers.LaunchSettings;
 import java.io.File;
 import java.io.IOException;
 
-// Singleton-класс для записи в файл чисел типа Integer
+/// Singleton-класс для записи в файл чисел типа Integer
 public class IntegerFileWriter implements FileWriter {
 
     private static IntegerFileWriter integerFileWriterInstance;
 
+    /// Настройки запуска
     private LaunchSettings launchSettings;
 
+    /// Проверка существования файла
     private boolean exists;
 
+    /// Переменная-семафор для проверки существования файлов результатов
+    ///
+    /// По умолчанию равна 0
+    ///
+    /// Если файлы по заданному пути отсутствуют, после их создания семафор принимает значение 1
     private int semaphore = 0;
 
     private IntegerFileWriter() {}
@@ -36,8 +43,16 @@ public class IntegerFileWriter implements FileWriter {
         }
     }
 
+    /// Метод записи данных в файл
     @Override
-    public void write(String str, boolean append) {
+    public synchronized void write(String str, boolean append) {
+
+        File file = new File(launchSettings.getExternalFilePath());
+
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
         try {
             String totalPath = launchSettings.getExternalFilePath() + Type.INT.getFilePath(launchSettings.getFileSignaturePrefix());
 

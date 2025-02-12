@@ -5,6 +5,7 @@ import enums.StatisticType;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+/// Класс статистики для строк
 public class StringStatistic implements Statistic {
 
     private int count = 0;

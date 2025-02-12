@@ -6,6 +6,7 @@ import entities.statistics.StringStatistic;
 import enums.Type;
 import managers.LaunchSettings;
 
+/// Фабрика статистик
 public class StatisticFactory {
 
     public static Statistic getStatistic(Type type, LaunchSettings launchSettings) {

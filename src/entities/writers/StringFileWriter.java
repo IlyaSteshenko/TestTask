@@ -3,17 +3,25 @@ package entities.writers;
 import enums.Type;
 import managers.LaunchSettings;
 
+import java.io.File;
 import java.io.IOException;
 
-// Singleton-класс для записи строк в файл
+/// Singleton-класс для записи строк в файл
 public class StringFileWriter implements FileWriter {
 
     private static StringFileWriter stringFileWriterInstance;
 
+    /// Настройки запуска
     private LaunchSettings launchSettings;
 
+    /// Проверка существования файла
     private boolean exists;
 
+    /// Переменная-семафор для проверки существования файлов результатов
+    ///
+    /// По умолчанию равна 0
+    ///
+    /// Если файлы по заданному пути отсутствуют, после их создания семафор принимает значение 1
     private int semaphore = 0;
 
     private StringFileWriter() {}
@@ -35,8 +43,15 @@ public class StringFileWriter implements FileWriter {
         }
     }
 
+    /// Метод записи данных в файл
     @Override
-    public void write(String str, boolean append) {
+    public synchronized void write(String str, boolean append) {
+
+        File file = new File(launchSettings.getExternalFilePath());
+
+        if (!file.exists()) {
+            file.mkdir();
+        }
 
         if (!isCorrectString(str)) {
             return;
@@ -59,7 +74,8 @@ public class StringFileWriter implements FileWriter {
             throw new RuntimeException(e);
         }
     }
-
+    
+    /// Проверка корректности строки
     private boolean isCorrectString(String string) {
         return string.matches(".+[a-zа-яA-ZА-Я0-9]+.+");
     }

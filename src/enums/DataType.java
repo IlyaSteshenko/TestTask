@@ -1,7 +1,9 @@
 package enums;
 
+/// Класс для предоставления типов входных данных
 public class DataType {
 
+    /// Метод возвращает тип входных данных
     public static Type typeOf(String str) {
         try {
             Long.parseLong(str);
@@ -13,20 +15,6 @@ public class DataType {
             } catch (NumberFormatException ex) {
                 return Type.STRING;
             }
-        }
-    }
-
-    public static StatisticType statisticTypeOf(String flag) {
-        switch (flag) {
-            case "-s" -> {
-                return StatisticType.SHORT;
-            }
-            case "-f" -> {
-                return StatisticType.FULL;
-            }
-            default -> throw new IllegalArgumentException(
-                    "Wrong parameter"
-            );
         }
     }
 }

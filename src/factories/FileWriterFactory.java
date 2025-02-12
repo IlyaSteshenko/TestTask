@@ -6,6 +6,7 @@ import entities.writers.IntegerFileWriter;
 import entities.writers.StringFileWriter;
 import enums.Type;
 
+/// Фабрика классов для записи данных
 public class FileWriterFactory {
 
     public static FileWriter getWriter(Type type) {

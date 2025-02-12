@@ -3,27 +3,26 @@ package managers;
 import enums.StatisticType;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class LaunchSettings {
 
-    // Входные аргументы программы
+    /// Входные аргументы программы
     private final String[] args;
 
-    // Список входных файлов
+    /// Список входных файлов
     private final List<String> files;
 
-    // Путь к файлам результатов, задаваемый пользователем
+    /// Путь к файлам результатов, задаваемый пользователем
     private String externalFilePath = "";
 
-    // Префикс к названиям файлов результатов
+    /// Префикс к названиям файлов результатов
     private String fileSignaturePrefix = "";
 
-    // Тип статистики
+    /// Тип статистики
     private StatisticType statisticType;
 
-    // Опция для добавления в существующие файлы
+    /// Опция для добавления в существующие файлы
     private boolean append = false;
 
     public LaunchSettings(String[] args) {
@@ -32,14 +31,14 @@ public class LaunchSettings {
         setSettings();
     }
 
-    // Установка значений настроек
+    /// Установка значений настроек
     private void setSettings() {
+
 
         for (int i = 0; i < args.length; i++) {
 
             if (args[i].matches(".+\\.txt")) {
                 files.add(args[i]);
-                continue;
             }
 
             switch (args[i]) {
@@ -51,6 +50,9 @@ public class LaunchSettings {
             }
         }
     }
+
+
+    /// Геттеры для полей класса
 
     public List<String> getFiles() {
         return files;

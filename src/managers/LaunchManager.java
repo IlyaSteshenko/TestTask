@@ -7,72 +7,87 @@ import entities.writers.FileWriter;
 import factories.FileWriterFactory;
 import factories.StatisticFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class LaunchManager {
 
-    // Настройки запуска программы
-    private LaunchSettings launchSettings;
+    /// Настройки запуска программы
+    private final LaunchSettings launchSettings;
+
+    private final ExecutorService executorService;
 
     Set<Type> pathsSet = new HashSet<>();
 
     public LaunchManager(LaunchSettings launchSettings) {
         this.launchSettings = launchSettings;
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
+    /// Главный метод запуска программы
     public void launch() {
 
-        File file = new File(launchSettings.getFiles().get(0));
+        try {
 
-        // Проверка на директорию
-        if (file.isDirectory()) {
-            System.out.println("File is directory");
-            return;
-        }
+            /// Многопоточное считывание входных файлов
+            for (String files : launchSettings.getFiles()) {
 
-        // Проверка на корректное расширение
-        if (!getFileExtension(file.getName()).equals("txt")) {
-            System.out.println("File is not txt file! Check file extension");
-            return;
-        }
+                File file = new File(files);
 
-        try (FileReader fileReader = new FileReader(launchSettings.getFiles().get(0))) { // Проверка на существование файла
+                /// Проверка на директорию
+                if (file.isDirectory()) {
+                    System.err.println("File is directory");
+                    return;
+                }
 
-            // Проверка на пустоту файла
-            if (file.length() == 0) {
-                System.out.println("File is empty");
-                return;
+                executorService.submit(() -> {
+
+                    try (FileReader fileReader = new FileReader(files)) { /// Проверка на существование файла
+
+                        /// Проверка на пустоту файла
+                        if (file.length() == 0) {
+                            System.err.printf("File %s is empty\n", files);
+                            return;
+                        }
+
+                        FileWriter writer;
+                        BufferedReader bufferedReader = new BufferedReader(fileReader);
+                        String line = bufferedReader.readLine();
+                        while (line != null) {
+                            Type type = DataType.typeOf(line);
+                            pathsSet.add(type);
+                            writer = FileWriterFactory.getWriter(type);
+                            writer.setLaunchSettings(launchSettings);
+                            writer.write(line, launchSettings.isAppend());
+
+                            line = bufferedReader.readLine();
+                        }
+
+                    } catch (IOException e) {
+                        System.err.println("File does not exists");
+                    }
+                });
+            }
+            executorService.shutdown();
+            if (!executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
+                executorService.shutdownNow();
             }
 
-            FileWriter writer;
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line = bufferedReader.readLine();
-            while (line != null) {
-                Type type = DataType.typeOf(line);
-                pathsSet.add(type);
-                writer = FileWriterFactory.getWriter(type);
-                writer.setLaunchSettings(launchSettings);
-                writer.write(line, launchSettings.isAppend());
-
-                line = bufferedReader.readLine();
+            /// Вывод статистики по файлам результатов
+            if (launchSettings.getStatisticType() != null) {
+                System.out.println(launchSettings.getStatisticType().getSign());
+                for (Type type : pathsSet) {
+                    Statistic statistic = StatisticFactory.getStatistic(type, launchSettings);
+                    statistic.getStatistic(launchSettings.getStatisticType());
+                }
             }
-
-            for (Type type : pathsSet) {
-                Statistic statistic = StatisticFactory.getStatistic(type, launchSettings);
-                statistic.getStatistic(launchSettings.getStatisticType());
-            }
-
-        } catch (Exception e) {
-            System.out.println("File does not exists");
+        } catch (InterruptedException e) {
+            System.err.println(e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
-
-    private static String getFileExtension(String fileName) {
-        return fileName.split("\\.")[1];
-    }
-
 }

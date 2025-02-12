@@ -4,6 +4,7 @@ import managers.LaunchSettings;
 
 import java.io.File;
 
+/// Интерфейс для реализации классов записи
 public interface FileWriter {
     void write(String str, boolean append);
     void setLaunchSettings(LaunchSettings launchSettings);
